@@ -12,14 +12,18 @@ import UIKit
 /// A control for selecting a date range in an overlay
 public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, Footer: View {
     var isPresented: Binding<Bool>
-    var range: ClosedRange<Date>?
+    var date: ClosedRange<Date>?
+    
     var header: (() -> Header)?
     var footer: ((ClosedRange<Date>?) -> Footer)?
     var completion: (ClosedRange<Date>?) -> Void
-
+    
     @State private var selection: ClosedRange<Date>?
+    
     private var canReset = false
-
+    private var range: ClosedRange<Date> = Date.distantPast ... Date.distantFuture
+    private var includeDays: MultiDatePicker.DateSelectionChoices = .allDays
+    
     @Environment(\.sizeCategory) var sizeCategory
     
     public var body: some View {
@@ -33,7 +37,9 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
                     VStack(spacing: 0) {
                         header?()
 
-                        MultiDatePicker(dateRange: $selection)
+                        MultiDatePicker(dateRange: $selection,
+                                        includeDays: includeDays,
+                                        in: range)
                             .animate(false)
                             .padding(.top)
 
@@ -83,7 +89,7 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
             }
             
             Button(role: .cancel) {
-                completion(range)
+                completion(date)
             } label: {
                 Text("Cancel".localized())
                     .frame(maxWidth: .infinity)
@@ -107,7 +113,7 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
             Spacer()
             
             Button(role: .cancel) {
-                completion(range)
+                completion(date)
             } label: {
                 Text("Cancel".localized())
                     .frame(minWidth: 50)
@@ -126,9 +132,24 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
     
     // MARK: - Modifier
     
+    /// Wether the control gives a reset option or not
     public func canReset(_ value: Bool) -> Self {
         var view = self
         view.canReset = value
+        return view
+    }
+    
+    /// The inclusive range of selectable dates.
+    public func range(_ value: ClosedRange<Date>) -> Self {
+        var view = self
+        view.range = value
+        return view
+    }
+    
+    /// The eligible days to select
+    public func includeDays(_ value: MultiDatePicker.DateSelectionChoices) -> Self {
+        var view = self
+        view.includeDays = value
         return view
     }
     
@@ -146,7 +167,7 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
                 @ViewBuilder header: @escaping () -> Header,
                 @ViewBuilder footer: @escaping (ClosedRange<Date>?) -> Footer) {
         self.isPresented = .constant(true)
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = header
         self.footer = footer
@@ -167,7 +188,7 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
                 @ViewBuilder header: @escaping () -> Header,
                 @ViewBuilder footer: @escaping (ClosedRange<Date>?) -> Footer) {
         self.isPresented = isPresented
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = header
         self.footer = footer
@@ -187,7 +208,7 @@ extension OverlayDateRangePicker where Header == EmptyView, Footer == EmptyView 
     public init(range: ClosedRange<Date>?,
                 completion: @escaping (ClosedRange<Date>?) -> Void) {
         self.isPresented = .constant(true)
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = nil
         self.footer = nil
@@ -202,10 +223,9 @@ extension OverlayDateRangePicker where Header == EmptyView, Footer == EmptyView 
     ///     - completion: The date range selection has been completed.
     public init(isPresented: Binding<Bool>,
                 range: ClosedRange<Date>?,
-                canReset: Bool = false,
                 completion: @escaping (ClosedRange<Date>?) -> Void) {
         self.isPresented = isPresented
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = nil
         self.footer = nil
@@ -228,7 +248,7 @@ extension OverlayDateRangePicker where Footer == EmptyView {
                 completion: @escaping (ClosedRange<Date>?) -> Void,
                 @ViewBuilder header: @escaping () -> Header) {
         self.isPresented = .constant(true)
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = header
         self.footer = nil
@@ -247,7 +267,7 @@ extension OverlayDateRangePicker where Footer == EmptyView {
                 completion: @escaping (ClosedRange<Date>?) -> Void,
                 @ViewBuilder header: @escaping () -> Header) {
         self.isPresented = isPresented
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = header
         self.footer = nil
@@ -269,7 +289,7 @@ extension OverlayDateRangePicker where Header == EmptyView {
                 completion: @escaping (ClosedRange<Date>?) -> Void,
                 @ViewBuilder footer: @escaping (ClosedRange<Date>?) -> Footer) {
         self.isPresented = .constant(true)
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = nil
         self.footer = footer
@@ -288,7 +308,7 @@ extension OverlayDateRangePicker where Header == EmptyView {
                 completion: @escaping (ClosedRange<Date>?) -> Void,
                 @ViewBuilder footer: @escaping (ClosedRange<Date>?) -> Footer) {
         self.isPresented = isPresented
-        self.range = range
+        self.date = range
         _selection = State(initialValue: range)
         self.header = nil
         self.footer = footer
@@ -298,6 +318,8 @@ extension OverlayDateRangePicker where Header == EmptyView {
         }
     }
 }
+
+// MARK: - Previews
 
 struct OverlayDateRangePicker_Previews: PreviewProvider {
     static var view: some View {

@@ -37,6 +37,20 @@ struct Demo: View {
                 } header: {
                     Text("Optional Date")
                 }
+                
+                Section {
+                    Button {
+                        selectDateRange = true
+                    } label: {
+                        if let range = viewModel.range {
+                            Text("\(range)")
+                        } else {
+                            Text("-")
+                        }
+                    }
+                } header: {
+                    Text("Date Range")
+                }
             }
             .navigationTitle("Demo")
             .overlay {
@@ -66,6 +80,7 @@ struct Demo: View {
                         Text("Select two dates")
                     }
                 }
+                .range(Date.now...Date.distantFuture)
             }
         }
     }
