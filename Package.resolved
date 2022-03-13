@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "MultiDatePicker",
+        "repositoryURL": "https://github.com/divadretlaw/MultiDatePicker",
+        "state": {
+          "branch": null,
+          "revision": "2be1375a50a0a5d4d46f48df4d0dd33cc3782649",
+          "version": "1.1.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
