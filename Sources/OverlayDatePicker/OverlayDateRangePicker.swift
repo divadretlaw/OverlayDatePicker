@@ -22,7 +22,7 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
     
     private var canReset = false
     private var range: ClosedRange<Date> = Date.distantPast ... Date.distantFuture
-    private var includeDays: MultiDatePicker.DateSelectionChoices = .allDays
+    private var includeDays: MultiDayPicker.DateSelectionChoices = .allDays
     
     @Environment(\.sizeCategory) var sizeCategory
     
@@ -37,9 +37,9 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
                     VStack(spacing: 0) {
                         header?()
 
-                        MultiDatePicker(dateRange: $selection,
-                                        includeDays: includeDays,
-                                        in: range)
+                        MultiDayPicker(dateRange: $selection,
+                                       includeDays: includeDays,
+                                       in: range)
                             .animate(false)
                             .padding(.top)
 
@@ -147,7 +147,7 @@ public struct OverlayDateRangePicker<Header, Footer>: View where Header: View, F
     }
     
     /// The eligible days to select
-    public func includeDays(_ value: MultiDatePicker.DateSelectionChoices) -> Self {
+    public func includeDays(_ value: MultiDayPicker.DateSelectionChoices) -> Self {
         var view = self
         view.includeDays = value
         return view
